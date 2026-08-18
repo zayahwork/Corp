@@ -1,287 +1,424 @@
-
 <div align="center">
 
-<br>
+# 🧠 Corp
 
-# ⚡ Corp
+**An always-on AI operations layer for a real-world, industry-leading business.**
 
-### The admin runs itself. The judgement stays yours.
+![Python](https://img.shields.io/badge/Python-3.x-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Windows](https://img.shields.io/badge/Windows-Always--On-0078D4?style=for-the-badge&logo=windows&logoColor=white)
+![Human Approval](https://img.shields.io/badge/Human-Approval-2EA44F?style=for-the-badge)
+![Local First](https://img.shields.io/badge/Local-First-111111?style=for-the-badge)
 
-Corp takes the repetitive work a business drowns in — answering reviews, drafting
-correspondence, finding and qualifying prospects, tracking what got sold — and does it.
-<br>It stops at the point where a person actually has to decide something.
-
-<br>
-
-[![Running](https://img.shields.io/badge/running_unattended-8_components-0E9F6E?style=for-the-badge&labelColor=0D1220)](#-running-right-now)
-[![Deployed](https://img.shields.io/badge/deployed_in_use-8_components-3B5BDB?style=for-the-badge&labelColor=0D1220)](#-deployed-and-in-use)
-[![Retrieval](https://img.shields.io/badge/retrieval-70×_fewer_tokens-7C3AED?style=for-the-badge&labelColor=0D1220)](#-measured-not-claimed)
-[![Cost](https://img.shields.io/badge/metered_spend-%240.00-E8590C?style=for-the-badge&labelColor=0D1220)](#-measured-not-claimed)
-
-[![Status](https://img.shields.io/badge/status-live_in_production-0E9F6E?style=flat-square&labelColor=0D1220)]()
-[![Python](https://img.shields.io/badge/python-3.12-3776AB?style=flat-square&labelColor=0D1220)]()
-[![Platform](https://img.shields.io/badge/platform-windows-0078D4?style=flat-square&labelColor=0D1220)]()
-[![Client](https://img.shields.io/badge/client-confidential-64748B?style=flat-square&labelColor=0D1220)]()
-
-<br>
-
-**Live in production at a top-performing agency inside a national carrier's network.**
-
-<br>
-
-| 8 | 70× | $0.00 | 16 |
-|:-:|:-:|:-:|:-:|
-| **RUNNING UNATTENDED** | **FASTER TO FIND ANYTHING** | **INFERENCE COST** | **COMPONENTS SHIPPED** |
-| <sub>on a schedule, against live data</sub> | <sub>measured on a blind benchmark</sub> | <sub>on 2.4M tokens of indexing</sub> | <sub>every one exists and runs</sub> |
+*Build AI systems that can do useful work without giving them permission to quietly do the wrong thing.*
 
 </div>
 
-<br>
+---
+
+## 🏢 What this project is
+
+Corp is an always-on AI operations layer built for a real-world, top-performing insurance agency inside a national carrier's captive network.
+
+It is not a chatbot.
+
+It is not an autonomous employee.
+
+It is a system with memory, routing, tools, tests, approval gates, and monitoring, running unattended on a Windows machine inside the client's own environment.
+
+There are two users.
+
+**The principal** runs the business. They talk to the system in plain language, usually from a phone. They do not need to know a command, remember a syntax, choose a model, or understand how the underlying system works.
+
+**The operator** owns the technical side. The operator reviews builds, controls deployment, owns credentials, investigates failures, and controls every exception to the system's safety rules.
+
+Those roles are intentionally different.
+
+The principal should be able to ask for outcomes.
+
+The operator should be able to inspect exactly how those outcomes are produced.
+
+This repository is a sanitised public case study of that architecture. The production vault, business data, credentials, internal records, prompts containing sensitive context, and client-specific integrations remain private.
+
+The client and carrier are **[CONFIDENTIAL]**.
 
 ---
 
-## 🟢 Running right now
+## 🗺️ The system at a glance
 
-> These execute on their own schedule. Nobody starts them.
+```mermaid
+flowchart TD
+    P["📱 Principal"]
+    O["🛠️ Operator"]
 
-| Component | What it does |
-|---|---|
-| **Review Response** | Checks the public profile every ten minutes and answers new reviews in the owner's own voice. Clean praise publishes on its own; anything negative waits for a person. |
-| **Compliance Guard** | Reads every draft before it can publish and blocks anything stating a fact the customer didn't say first. Built into the code, so a bad draft physically cannot send. |
-| **Standing Brief** | Checks the whole system before every interaction — what's running, what's stale, what needs a human — and mentions only what changed. |
-| **Knowledge Graph** | Four thousand connected facts across the code and the business record. Answers "what breaks if I change this" as a lookup instead of a search. |
-| **Process Supervisor** | Watches the automations themselves. Restarts what dies, stops two copies fighting over one queue, spots anything running outdated code. |
-| **Fact Store** | Every business number with where it came from and whether the client stated it or we derived it. A guess cannot be saved without a warning attached. |
-| **Alert Channel** | Reminders that survive a reboot. Says it once, repeats daily while still waiting, stays quiet otherwise. |
-| **Capability Index** | Live list of every tool and integration, and which have gone stale. Treats "missing" as an error rather than an empty answer. |
+    P --> R["🧭 Request Router"]
+    O --> R
 
-<br>
+    R --> M["🧠 Operational Memory"]
+    R --> T["🔧 Existing Tools"]
+    R --> B["🏗️ Build Queue"]
 
-## 🔵 Deployed and in use
+    M --> T
+    M --> B
 
-> Built, tested, used every week — triggered by a person rather than a clock.
+    B --> C["🧪 Build + Test"]
+    C --> T
 
-| Component | What it does |
-|---|---|
-| **Correspondence Drafter** | Reads the mailbox, works out what genuinely needs answering, writes the reply into drafts. It cannot send — there is no send code in it at all. |
-| **Production Tracker** | Replaces a paid subscription tool. Records every sale, links an appointment to the policy it becomes, runs inside a fully locked-down corporate laptop. |
-| **Business Intelligence** | The whole operating history, queryable. Found six figures of recurring revenue quietly leaking out of the book that nobody had spotted. |
-| **Prospect Engine** | Finds and scores prospects from public data against real criteria, and refuses anything that trips the competitor guard. |
-| **Guarded Dispatch** | The only thing that can send. Approval tied to the exact message, suppression list, nightly cap, send window, off by default. |
-| **Team Board** | Who's working on what, what nobody has picked up, what's stalling — without anyone asking around. |
-| **Owner Console** | One screen answering "what's happening and what needs me", in the owner's language. Built because a non-technical principal lost ten minutes a day decoding status. |
-| **Build Council** | New tools get built by a panel, not one model: a planner, two builders cross-checking, an adversary from a rival vendor, and an automated safety scan. |
+    T --> X["📦 Proposed External Action"]
+    X --> A{"👤 Human Approval"}
 
-<br>
+    A -->|Approved| E["🌐 Leaves the Machine"]
+    A -->|Rejected / Changed| R
 
-## ⚪ Coming next
+    T --> I["🏠 Internal-Only Result"]
 
-| Component | What it does |
-|---|---|
-| **Renewal Watchlist** | Surfaces the renewal wall week by week and flags which accounts are most likely to lapse before anyone notices. |
-| **Lapse Recovery** | Catches non-payment cancellations early enough to save, with a named and prioritised list. |
-| **Cost per Sale** | True acquisition cost by lead source, so spend follows what converts rather than what makes noise. |
+    E --> L["📋 Evidence + Monitoring"]
+    I --> L
+    L --> M
+```
 
-<br>
+The important boundary is not between "AI" and "software."
+
+It is between **preparation and consequence**.
+
+The system can reason, retrieve context, prepare work, test tools, and assemble exact payloads internally. Anything externally visible crosses an explicit human approval boundary before it leaves the machine.
 
 ---
 
-## 📊 Measured, not claimed
+## 🧰 The toolkit
 
-<table>
-<tr><td width="28%"><b>Finding information</b></td>
-<td>An outside model wrote twelve questions from a random sample of the system, unseen by us.<br>
-Conventional search: <b>1,172,726</b> tokens, right source found <b>2 of 12</b> times.<br>
-Graph lookup: <b>16,571</b> tokens, <b>9 of 12</b>.</td></tr>
-<tr><td><b>Running cost</b></td>
-<td><b>2.4 million</b> tokens of index building at <b>$0.00</b> in metered charges, by routing through
-subscription capacity and stripping the billable credentials out of the execution environment.</td></tr>
-<tr><td><b>Adversarial review</b></td>
-<td>An independent model audit of the publishing path found <b>three</b> defects, each pinned to a line
-of code. All three fixed and regression-tested the same day. The fix proved itself on its first live publish.</td></tr>
-<tr><td><b>Hostile environment</b></td>
-<td>The client's machines allow exactly <b>one</b> approved third-party app, block browser extensions,
-forbid external web tools, and reject anything needing admin rights. Corp works entirely inside that.</td></tr>
-</table>
-
-<br>
-
----
-
-## 🧭 How we decide what to build
-
-> The roadmap comes out of the business rather than being pitched at it.
-
-<table>
-<tr>
-<td width="33%" valign="top">
-
-**1️⃣ Look at the real work**
-
-We read the actual record first — mail, sales data, financials, the tools already in
-use. What a business thinks its bottleneck is usually isn't, and the data says which.
-
-</td>
-<td width="33%" valign="top">
-
-**2️⃣ Put a number on it**
-
-Minutes per occurrence, how often, value per week. Anything we can't quantify doesn't
-get built, because it can't be ranked against anything else.
-
-</td>
-<td width="33%" valign="top">
-
-**3️⃣ Subtract the hassle**
-
-Real value is time saved minus checking, correcting and maintaining. Something that
-saves ten minutes and costs fifteen in review is a loss, and gets cut.
-
-</td>
-</tr>
-<tr>
-<td valign="top">
-
-**4️⃣ Safest things first**
-
-Cheap and reversible up front. Anything touching a customer, money or a regulated
-record comes after the controls that make it safe, never before.
-
-</td>
-<td valign="top">
-
-**5️⃣ Build it adversarially**
-
-A planner drafts it, two builders cross-check, a model from a competing vendor attacks
-the design and the finished code, and a scan enforces the safety rules.
-
-</td>
-<td valign="top">
-
-**6️⃣ Check it actually worked**
-
-What we expected and what we got are tracked separately. Anything that doesn't earn
-its place gets retired instead of defended.
-
-</td>
-</tr>
-</table>
-
-<br>
-
----
-
-## 🧩 What we can build for a business
-
-> If work is repetitive, low-judgement, and leaves a record, it can be automated.
-
-| | | |
+| | Capability | What it does |
 |---|---|---|
-| 🟢 **Reputation**<br><sub>Review monitoring and replies, sentiment tracking, referral capture, alerts when perception shifts.</sub> | 🔵 **Inbound mail**<br><sub>Sort what needs a reply, draft it in the owner's voice, route the rest, never drop a request.</sub> | 🟣 **Pipeline**<br><sub>Stage tracking, stall detection, timed follow-up, conversion measured rather than guessed.</sub> |
-| 🟠 **Retention**<br><sub>Churn prediction, renewal walls surfaced weeks early, lists naming who's worth a call today.</sub> | 🔷 **Prospecting**<br><sub>Sourcing from public data, qualification, enrichment, dedupe, outreach behind approval gates.</sub> | 🔴 **Reporting**<br><sub>Dashboards in plain language, monthly reviews and scorecards, generated rather than assembled.</sub> |
-| 🟢 **Money**<br><sub>Spend analysis, subscription audits, cost per sale by channel, leakage found before it compounds.</sub> | 🔵 **Hiring**<br><sub>Applicant screening, structured scorecards, scheduling, training plans generated per role.</sub> | 🟣 **Team ops**<br><sub>Shared task visibility, workload balance, meeting capture, reminders that outlive a restart.</sub> |
-| 🟠 **Documents**<br><sub>Intake, extraction, filing — every figure traceable back to the page it came from.</sub> | 🔷 **Compliance**<br><sub>Rules enforced in code rather than a handbook, with an audit trail of what got blocked and why.</sub> | 🔴 **Memory**<br><sub>Every decision and its reasoning, queryable — nothing re-argued, no knowledge walks out.</sub> |
+| ⭐ | **Review operations** | Collects review context, prepares grounded responses, tracks handling, and keeps the final external action behind approval. |
+| 📧 | **Email operations** | Reads permitted inbox context, classifies work, prepares replies, extracts tasks, and routes anything consequential for review. |
+| 🎯 | **Lead intelligence** | Evaluates incoming opportunities against defined criteria, records why a lead qualifies or does not, and prepares the next appropriate action. |
+| 📊 | **Data-to-decision reporting** | Turns operational data into summaries, exceptions, trends, and decision-ready reports instead of raw exports. |
+| 👥 | **Team operations** | Tracks tasks, responsibilities, follow-ups, recurring work, and operational handoffs without requiring the principal to manage the underlying system. |
+| 🔁 | **Retention and renewals** | Surfaces upcoming retention work, renewal opportunities, unresolved follow-ups, and context needed for timely intervention. |
+| 💰 | **Financial visibility** | Converts permitted business data into operational views of costs, production, opportunities, and other decision-relevant signals. |
+| 🧑‍💼 | **Hiring and onboarding** | Organises candidate and onboarding workflows, prepares materials, tracks required steps, and preserves process context. |
+| 📄 | **Document handling** | Classifies, extracts, routes, summarises, and retrieves documents while preserving their source and operational context. |
+| 🏗️ | **Autonomous tool builder** | Turns repeated work into bounded tools through planning, implementation, adversarial review, testing, and operator-controlled deployment. |
+| 🩺 | **Reliability layer** | Watches health, validates invariants, records failures, checks dependencies, and makes silent degradation visible. |
 
-<br>
+The point is not to have the largest toolkit.
 
----
-
-## 🛡️ The four rules everything obeys
-
-<table>
-<tr>
-<td width="25%" valign="top">
-
-**🟢 Nothing reaches a customer unreviewed**
-
-Automation drafts, organises and stages. A person approves anything externally
-visible. Where the rule is absolute it's enforced by the absence of a code path,
-not a setting someone could flip.
-
-</td>
-<td width="25%" valign="top">
-
-**🔴 Failures are loud and same-day**
-
-A silent success is the worst possible outcome. Every automation has an alarm path,
-and the system checks its assumptions against the machine rather than against its
-own notes.
-
-</td>
-<td width="25%" valign="top">
-
-**🔵 Every number carries its source**
-
-Figures are stored with provenance, capture date and confidence, marked by whether
-the client stated them or we derived them. Any claim traces back to the artefact it
-came from.
-
-</td>
-<td width="25%" valign="top">
-
-**🟣 Built for locked-down estates**
-
-Designed against a corporate environment with no installable software, no
-extensions and no external tooling. What survives that deploys anywhere.
-
-</td>
-</tr>
-</table>
-
-<br>
+The point is to make recurring work **explicit, inspectable, and recoverable**.
 
 ---
 
-## 🏗️ How it fits together
+## 🧠 Memory is part of the product
 
-```
-                    ┌───────────────────────────────┐
-                    │        THE BUSINESS           │
-                    │  mail · reviews · sales data  │
-                    └───────────────┬───────────────┘
-                                    │
-        ┌───────────────────────────┼───────────────────────────┐
-        │                           │                           │
-   ┌────▼─────┐              ┌──────▼──────┐             ┌──────▼──────┐
-   │  INTAKE  │              │  REASONING  │             │   RECORD    │
-   │ read     │              │ draft       │             │ every fact  │
-   │ classify │─────────────▶│ score       │────────────▶│ + provenance│
-   │ extract  │              │ decide      │             │ + who said  │
-   └──────────┘              └──────┬──────┘             └─────────────┘
-                                    │
-                            ┌───────▼────────┐
-                            │   COMPLIANCE   │  blocks anything stating a fact
-                            │     GUARD      │  the customer didn't say first
-                            └───────┬────────┘
-                                    │
-                 ┌──────────────────┴──────────────────┐
-                 │                                     │
-          ┌──────▼───────┐                    ┌────────▼────────┐
-          │  AUTO-SEND   │                    │ WAITS FOR HUMAN │
-          │  clean, low  │                    │  anything else  │
-          │  risk only   │                    │                 │
-          └──────────────┘                    └─────────────────┘
+A useful operations system cannot wake up every morning with amnesia.
+
+Corp uses an Obsidian vault as durable operational memory. The vault holds business context, decisions, operating rules, tool documentation, evidence, and the information required to understand why the system behaves the way it does.
+
+A simplified structure looks like this:
+
+```text
+Corp/
+│
+├── 00 - Start Here/
+│   ├── 01 - System Map.md
+│   ├── 02 - Operating Rules.md
+│   └── 03 - Current Priorities.md
+│
+├── 01 - Business Memory/
+│   ├── 01 - Business Facts.md
+│   ├── 02 - Products and Services.md
+│   ├── 03 - Team Roles.md
+│   └── 04 - Operating Context.md
+│
+├── 02 - Operations/
+│   ├── 01 - Reviews.md
+│   ├── 02 - Email.md
+│   ├── 03 - Leads.md
+│   ├── 04 - Retention.md
+│   └── 05 - Team Tasks.md
+│
+├── 03 - Tools/
+│   ├── 01 - Tool Registry.md
+│   ├── 02 - Permissions.md
+│   └── 03 - Runbooks.md
+│
+├── 04 - Build Queue/
+│   ├── 01 - Requests.md
+│   ├── 02 - In Review.md
+│   └── 03 - Evidence.md
+│
+├── 05 - Safety/
+│   ├── 01 - Approval Rules.md
+│   ├── 02 - Provenance Rules.md
+│   ├── 03 - External Action Policy.md
+│   └── 04 - Failure Policy.md
+│
+└── 06 - System/
+    ├── 01 - Health.md
+    ├── 02 - Change Log.md
+    ├── 03 - Incidents.md
+    └── 04 - Backups.md
 ```
 
-<br>
+Most of the value does not come from thousands of notes.
+
+A small set does most of the heavy lifting:
+
+- **System Map** — what exists and how the pieces connect.
+- **Operating Rules** — boundaries the system is not allowed to improvise around.
+- **Business Facts** — verified facts the system can rely on.
+- **Tool Registry** — what each tool does, requires, and is allowed to touch.
+- **Approval Rules** — which actions require a person and what exactly is being approved.
+- **Change Log** — what changed, when, and why.
+- **Incidents** — failures worth remembering so the system does not relearn the same lesson.
+
+Memory is not an attachment to the system.
+
+It is part of the system.
 
 ---
+
+## 🛡️ The safety model
+
+### 1. Prepare, don't dispatch
+
+The default permission is to **prepare work, not publish it**.
+
+Generating an email and sending an email are different capabilities.
+
+Preparing outreach and contacting a person are different capabilities.
+
+Producing a recommendation and changing a business record are different capabilities.
+
+That separation is intentional.
+
+### 2. Approval belongs to the exact payload
+
+"Approved" is not a reusable permission.
+
+If a human approves a specific message, recipient, attachment, or action, the approval belongs to that exact payload.
+
+Change the payload and the approval is no longer valid.
+
+This prevents an approval from silently becoming permission for whatever the system generates next.
+
+### 3. Facts need provenance
+
+Operational memory must distinguish between:
+
+- verified business facts,
+- source-derived facts,
+- system observations,
+- model interpretations,
+- and unresolved assumptions.
+
+When a consequential decision depends on a fact, the system should be able to answer:
+
+**Where did this come from?**
+
+A confident model output is not provenance.
+
+### 4. Secrets stay local
+
+Credentials, tokens, private business information, production configuration, and sensitive operational context do not belong in the public repository.
+
+Secrets are stored locally and exposed only to the components that require them.
+
+The AI should not receive broad credentials simply because giving them broad credentials is convenient.
+
+### 5. Failure must be loud
+
+Silence is not reliability.
+
+If an expected job does not run, a dependency disappears, a credential expires, a browser driver fails, an output cannot be validated, or an external service behaves unexpectedly, the system should surface that state.
+
+A failed automation that looks successful is worse than an automation that stops.
+
+### 6. Staging is a real boundary
+
+Testing against production by promising to "be careful" is not staging.
+
+Development and staging must be able to exercise workflows without accidentally producing real-world consequences.
+
+External actions require an intentional transition across that boundary.
+
+---
+
+## 🏗️ How a new tool gets built
+
+```text
+Request
+  ↓
+Clarify the actual business problem
+  ↓
+Retrieve relevant operational memory
+  ↓
+Define inputs, outputs and permissions
+  ↓
+Write acceptance criteria
+  ↓
+Plan the implementation
+  ↓
+Build in isolation
+  ↓
+Run deterministic tests
+  ↓
+Run integration tests
+  ↓
+Adversarial review
+  ↓
+Test failure paths
+  ↓
+Generate build evidence
+  ↓
+Operator review
+  ↓
+Stage
+  ↓
+Approve deployment
+  ↓
+Monitor real operation
+  ↓
+Feed lessons back into memory
+```
+
+Different model perspectives are useful because building and criticising require different incentives.
+
+A **planner** tries to reduce the problem to explicit requirements and boundaries. A **builder council** challenges implementation choices and compares possible approaches. An **adversary** tries to break assumptions, find unsafe paths, identify missing tests, and ask what happens when dependencies behave incorrectly.
+
+None of those perspectives gets deployment authority.
+
+"Done" does not mean the code ran once.
+
+Done means the tool has defined behaviour, bounded permissions, tests, failure handling, evidence, documentation, an operator-understood rollback path, and enough monitoring to know when reality stops matching the assumptions it was built under.
+
+---
+
+## 🧪 What real operation taught me
+
+### Built is not the same as useful
+
+A technically working automation can still be useless.
+
+If it solves the wrong problem, requires more attention than the manual process, produces output nobody trusts, or does not fit how the business actually works, shipping more code will not fix it.
+
+Real usage is the test.
+
+### Silence is an error state
+
+Early automation failures taught me that "nothing happened" is not an acceptable result.
+
+If the system expected something to happen, it needs evidence that it happened.
+
+Missing output, missing data, skipped jobs, expired sessions, and broken dependencies need explicit states.
+
+### The reason matters more than the decision
+
+A system saying **NO** is less useful than a system saying:
+
+**NO — because conditions A and B failed, using facts from sources X and Y, under rule Z.**
+
+The same applies to YES.
+
+When humans remain accountable for the outcome, reasoning has to be inspectable.
+
+### Specific context beats generic intelligence
+
+A stronger model without the right business context regularly loses to a simpler system with the correct facts, constraints, examples, tools, and operating history.
+
+The business does not need an AI that knows everything.
+
+It needs a system that knows what is true **here**.
+
+### Human-in-the-loop can still be fast
+
+Human approval does not have to mean copying text between windows and manually reconstructing the AI's reasoning.
+
+The system can do almost everything before the approval boundary: gather context, validate facts, prepare the payload, explain the reasoning, flag uncertainty, and present the decision cleanly.
+
+The human's job can be reduced to making the consequential decision.
+
+That is still automation.
+
+---
+
+## 🔒 What is deliberately private
+
+The public repository does not contain:
+
+- The client's identity.
+- The national carrier's identity.
+- Staff names or personal information.
+- Production credentials, tokens, API keys, cookies, or sessions.
+- The production Obsidian vault.
+- Customer, prospect, policyholder, or employee data.
+- Private emails or communications.
+- Production databases.
+- Internal carrier systems or documentation.
+- Client-specific prompts containing confidential context.
+- Exact production network configuration.
+- Sensitive operational rules that could expose internal controls.
+- Vendor identities where disclosure is unnecessary.
+- Raw logs containing business or personal data.
+- Anything required to reproduce access to the client's environment.
+
+Where context is necessary to explain the architecture, identifiers are replaced with **[CONFIDENTIAL]** or neutral role names.
+
+---
+
+## 🛣️ Where this goes next
+
+- [ ] Formalise workflow state machines for long-running operations.
+- [ ] Move authoritative operational state into a transactional data layer.
+- [ ] Expand end-to-end tracing across tools and workflows.
+- [ ] Add correlation IDs from request through final outcome.
+- [ ] Expand integration and regression test coverage.
+- [ ] Build reusable failure-injection tests.
+- [ ] Formalise evaluation datasets for model-assisted decisions.
+- [ ] Measure model and prompt changes against fixed evaluation sets.
+- [ ] Expand role-based and least-privilege access controls.
+- [ ] Improve queueing, retry, backoff, and dead-letter handling.
+- [ ] Make human approval payloads cryptographically identifiable.
+- [ ] Expand operational dashboards and health reporting.
+- [ ] Measure cycle time, failure rate, human intervention, and business impact.
+- [ ] Keep reducing architectural complexity as capability grows.
+
+---
+
+## 👤 About this repository
+
+I'm Zayah.
+
+I built Corp while working inside a real business and watching where repetitive work, missing context, disconnected systems, and manual decision-making created friction.
+
+The interesting part was never getting an LLM to produce text.
+
+The interesting part was everything around it.
+
+How does the system remember?
+
+How does it know which tool to use?
+
+How does it know what is true?
+
+What happens when a dependency fails?
+
+Who is allowed to approve an action?
+
+What exactly did they approve?
+
+How do I know an unattended process is still healthy?
+
+How do I change the system without quietly breaking something that already works?
+
+How do I give a non-technical person something powerful without making them operate the machinery underneath it?
+
+Corp is my attempt to answer those questions through real operation rather than a demo.
+
+This repository is not the production system.
+
+It is the architecture, patterns, failures, and lessons I can make public without exposing the business that made them possible.
 
 <div align="center">
 
-### Deployment
-
-**One Windows machine. No servers, no cloud dependency, no admin rights required.**
-
-Runs entirely inside the client's own environment.
-
-<br>
-
-`[CONFIDENTIAL]` — client, carrier, staff and vendor details withheld.
-<br>Every number in this document is real and taken from the running system.
-
-<br>
-
-**Corp** · operations automation · August 2026
+**Build the system so the human can trust what happens when nobody is watching.**
 
 </div>

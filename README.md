@@ -100,6 +100,34 @@ The system can reason, retrieve context, prepare work, test tools, and assemble 
 | 🏗️ | **Autonomous tool builder** | Turns repeated work into bounded tools through planning, implementation, adversarial review, testing, and operator-controlled deployment. |
 | 🩺 | **Reliability layer** | Watches health, validates invariants, records failures, checks dependencies, and makes silent degradation visible. |
 
+### What each one actually does
+
+The table above is the summary. The mechanism is more specific, and the specifics are where the safety lives.
+
+**⭐ Review operations.** A browser session, held open and signed in, reads new public reviews on a poll. Each one is matched against a roster so a staff member named in a review can be named in the reply, and against the review text itself so nothing in the response asserts a fact the customer did not state first. The draft is written in the principal's voice, learned from her own previous replies rather than from a template. Then it stops.
+
+This is the one place in the system with an armed automatic path, and it was armed deliberately, by hand, after months of drafts being read and approved one at a time. Clean drafts at four stars or above publish themselves ninety minutes after a review is found. Anything flagged, anything negative, anything below that rating still waits for a person. The delay is not a technical requirement; it is a window in which a human can stop it.
+
+**📧 Email operations.** Reads a permitted mailbox over IMAP, classifies what actually needs attention, and writes a reply into the drafts folder.
+
+There is no send path. Not a disabled one, not a flag, not a configuration setting — **the package contains no mail-sending library at all**, and a test walks its syntax tree on every run to prove it. A tool that could send and merely chose not to would be one mistake away from a customer receiving something nobody read.
+
+**🎯 Lead intelligence.** Sources prospects from public data, scores them against written criteria, and records why each one qualified or did not. The reasoning is stored alongside the score, because a number with no argument behind it cannot be checked later and cannot be corrected.
+
+**🔁 Outreach sequencing.** Multi-touch follow-up with hard stops: a maximum number of touches, business hours only, and a reply, bounce or opt-out closes the sequence permanently and irreversibly. Templates are approved by hash — editing one un-approves it automatically and the tool then stages nothing rather than sending unreviewed wording.
+
+The single write it performs anywhere is appending a draft to the drafts folder, flagged as a draft. That is checked structurally: exactly one such call may exist in the package, its folder must come from the drafts lookup rather than any name that could be anything, and it must carry the draft flag. A message appended to a sent folder would read as sent to a human looking at their mailbox, and that is the failure the check exists to catch.
+
+**📊 Data-to-decision reporting.** Turns operational data into exceptions and trends rather than exports. Renders worksheets to images without spreadsheet software, because the machine it runs on does not have any installed and waiting for a licence was not a reason to have no reports.
+
+**👥 Team operations.** Tasks addressed to people by name, never by role — an instruction that reads "the receptionist should" is one nobody owns. Tracks follow-ups and recurring work without requiring the principal to administer the system underneath it.
+
+**🩺 Reliability layer.** Checks run on every interaction and write a short standing brief: what is stale, what is armed, what is running code older than the code on disk, and what number is currently impossible. That last category matters — a metric returning a conversion rate above 100% is listed by name as unquotable rather than quietly reported.
+
+**🧠 Knowledge graph.** Code and operational notes indexed into one structure — several thousand nodes across functions, docstrings, concepts and written decisions. It answers "what calls this", "what breaks if I change it" and "which note explains why this exists" without a text search.
+
+It is also a cautionary tale. It was eleven times larger until a vendored database admin tool was excluded from indexing: 87% of the graph was somebody else's bundled JavaScript, and the honest answer to "what is the most called function in this system" was minified vendor code with thirteen thousand callers, while the real answer had thirty-four. A knowledge graph that indexes everything knows nothing in particular.
+
 The point is not to have the largest toolkit.
 
 The point is to make recurring work **explicit, inspectable, and recoverable**.
@@ -280,11 +308,37 @@ Monitor real operation
 Feed lessons back into memory
 ```
 
-Different model perspectives are useful because building and criticising require different incentives.
+---
 
-A **planner** tries to reduce the problem to explicit requirements and boundaries. A **builder council** challenges implementation choices and compares possible approaches. An **adversary** tries to break assumptions, find unsafe paths, identify missing tests, and ask what happens when dependencies behave incorrectly.
+## 🎭 The workers, and why each one exists
 
-None of those perspectives gets deployment authority.
+Different model perspectives are useful because building and criticising require different incentives. But a model told to be good at everything optimises for nothing, so each worker in the pipeline carries a written identity: what it is accountable for, **what it is allowed to be bad at**, and the specific failure that belongs to it.
+
+That second part is the one that does the work. A reviewer permitted to be undiplomatic will actually disagree. A builder permitted to be slow and verbose will write the plain version instead of the clever one.
+
+| Worker | Optimises for | Allowed to be bad at | The failure that is theirs |
+|---|---|---|---|
+| 🔍 **Analyst** | Whether the substance came from the operator or from us. If a threshold, a rule or a customer-facing word is not on the record, it asks rather than choosing. | Elegance, brevity, being agreeable. | A spec that reads well and quietly contains a decision nobody made. |
+| 📐 **Architect** | The simplest arrangement that satisfies every acceptance criterion and nothing more. Names the state, where it lives, what runs on a schedule, and where a human is required. | Extensibility and generality. It is not designing a framework. | A plan that is impressive to read and painful to build, or one that hides the hard part in a sentence beginning "simply". |
+| 🔨 **Builder** | Correctness first, then legibility. Forty plain lines a stranger can read at 2 am beat fifteen clever ones that need explaining. | Speed and line count. Nobody is waiting on it to be quick. | Code that passes its own tests because its tests were written to pass. |
+| 🔁 **Cross-checker** | Finding the specific input that breaks it. Empty, None, unicode, a locked database, a file that vanished mid-run, a clock that moved backwards, two copies running at once. | Diplomacy and rewriting. It is not here to make the code its own. | Signing off because it looked fine. "Looks good" is not a review. |
+| ⚔️ **Adversary** | The failure, not the confirmation. Defaults to refuted when uncertain. Runs on a **different vendor's model**, which is the entire reason it exists. | Encouragement, and knowing house conventions. | A plausible objection that is wrong, stated as confidently as a real one. That costs a fix cycle and teaches everyone downstream to ignore it. |
+| 📝 **Recorder** | What was checked, what was sent back, why, and what is still unresolved. "Sent back because the retry path could double-send on a read timeout" is useful; "sent back for quality" is noise. | Brevity for its own sake, and reassurance. | A smooth account of a rough build. |
+| 💅 **Gate** | Whether a real person could use this, and whether it is genuinely good or merely passing. Reads the phase records to find where the build fought itself, because a place that took three cycles to settle is where the remaining bug lives. | Rewriting. It is a gate, not a second builder. | A smooth "all done" that sends a human to find the problem it could have named. |
+
+**Cheap work goes to cheap models.** Moving files, staging, committing and renaming need no judgement, so they do not get an expensive one. Reasoning models are spent on the phases where being wrong is costly.
+
+**Mechanical quality is not a model's job at all.** Dead code, unused imports, import order and formatting are handled by a linter in under a second for nothing. Measured over sixteen real builds, the final quality pass had been spending more than a fifth of total build time doing work a tool does for free. What is left for a model is the judgement, which cannot be linted.
+
+### The one worker that is not a model
+
+The test harness is plain code. It builds a scratch environment, runs the tests as a subprocess, and records the command, the exit code and every byte of output.
+
+This matters more than anything else on this page: **a model cannot report a passing test it never ran, because it never runs one.** Results come back to it as text on the next turn. Every claim about whether something works traces to a recorded subprocess rather than to a model's account of itself.
+
+The honest weakness is the other half of that. The harness runs the tests faithfully, but the model wrote them, so they are exactly as good as that model was that day. Measured, they take thirteen seconds a build. That is the weakest link in the pipeline and it is known rather than hidden.
+
+None of these perspectives gets deployment authority.
 
 "Done" does not mean the code ran once.
 

@@ -94,8 +94,8 @@ The system can reason, retrieve context, prepare work, test tools, and assemble 
 | 📊 | **Data-to-decision reporting** | Turns operational data into summaries, exceptions, trends, and decision-ready reports instead of raw exports. |
 | 👥 | **Team operations** | Tracks tasks, responsibilities, follow-ups, recurring work, and operational handoffs without requiring the principal to manage the underlying system. |
 | 🔁 | **Retention and renewals** | Surfaces upcoming retention work, renewal opportunities, unresolved follow-ups, and context needed for timely intervention. |
-| 💰 | **Financial visibility** | Converts permitted business data into operational views of costs, production, opportunities, and other decision-relevant signals. |
-| 🧑‍💼 | **Hiring and onboarding** | Organises candidate and onboarding workflows, prepares materials, tracks required steps, and preserves process context. |
+| 💰 | **Spend analysis** | Reads what the business actually pays, works out which vendors something already built could replace, and writes the build request for the ones it cannot. |
+| 🧑‍💼 | **Hiring and onboarding** | Organises applicants on identical terms, prepares interview material, tracks scheduling and no-shows, and deliberately refuses to rank anyone. |
 | 📄 | **Document handling** | Classifies, extracts, routes, summarises, and retrieves documents while preserving their source and operational context. |
 | 🏗️ | **Autonomous tool builder** | Turns repeated work into bounded tools through planning, implementation, adversarial review, testing, and operator-controlled deployment. |
 | 🩺 | **Reliability layer** | Watches health, validates invariants, records failures, checks dependencies, and makes silent degradation visible. |
@@ -121,6 +121,24 @@ The single write it performs anywhere is appending a draft to the drafts folder,
 **📊 Data-to-decision reporting.** Turns operational data into exceptions and trends rather than exports. Renders worksheets to images without spreadsheet software, because the machine it runs on does not have any installed and waiting for a licence was not a reason to have no reports.
 
 **👥 Team operations.** Tasks addressed to people by name, never by role — an instruction that reads "the receptionist should" is one nobody owns. Tracks follow-ups and recurring work without requiring the principal to administer the system underneath it.
+
+**🧑‍💼 Hiring operations.** Applications arrive on their own: a read-only mailbox watcher recognises application-shaped mail from job boards or direct applicants and hands each one to the hiring desk with a source label, deduplicated so a rerun never creates a second copy of the same person. From there every applicant gets one summary in exactly the same shape, and every fact in it is a line the candidate wrote, quoted, with the file and line it came from. A field with nothing behind it reads `NOT FOUND`, which means the scan found no statement about it rather than that the person lacks it, and the summary says so at the top in those words.
+
+It does not score, rank, compare, or recommend anybody, and it cannot contact an applicant at all.
+
+That restraint is the most deliberate design decision in the system, and it is not squeamishness. The state's law against discrimination binds at the employer's headcount, and federal uniform guidelines put validation liability for any selection procedure on the employer personally. The screening step already running before this tool existed was a vendor's timed test published with no validation study and no adverse impact analysis, and that exposure belonged to the principal either way. A tool that only organises is measurably **less** exposed than the status quo it replaces, which is an unusual thing to be able to say about adding automation to hiring.
+
+The question set is checked on every single load and refuses to run if it grows a question about criminal history or any protected characteristic. The check is a keyword list and not a lawyer, and the file says exactly that in its own header, because a guardrail that oversells itself is worse than one that states its limit.
+
+The value is not only the four vendor bills it replaces. It is that five candidates get compared on the same basis, in the same order, instead of from memory a week later. That is both a better hire and a defensible one.
+
+**💰 Spend analysis.** Reads a card or bank export, works out what the business is genuinely paying, cross-references every vendor against the tools already built and the requests already queued, and writes a build request for anything replaceable that does not exist yet. It writes the request. It does not run the builder, and it decides nothing.
+
+The interesting part is the class of spend it exists to catch. A vendor billing a fixed amount on a fixed day is trivial, and everybody already knows about those. The expensive ones bill as irregular top-ups and never look like subscriptions at all, so they survive every "list what you pay for" exercise ever run. In the first real pass, three vendors in that shape were costing more per month than the largest line anybody had on a list, and none of them appeared on any list anywhere. A bundled service recorded in six separate places at one figure turned out to be a third less than that figure. Two vendors formally decided against weeks earlier were still billing, because the decisions had been made and never executed.
+
+It cannot cancel, contact, pay, or dispatch anything; it reads files and writes files. An unrecognised merchant reads `UNIDENTIFIED` with its raw descriptor rather than a plausible guess, because a confidently wrong answer about where money goes is worse than an obvious gap. A vendor that already stopped billing is reported as stopped and excluded from the headline total, since a saving counted twice is the same failure as a number quoted from memory.
+
+The first pass of this analysis was done by hand and took an afternoon. It found that roughly **half of one card's annual outside spend** was replaceable, already replaced, or buying nothing at all. The finding that mattered most was not any individual vendor. It was that decisions already taken had never actually reached the account.
 
 **🩺 Reliability layer.** Checks run on every interaction and write a short standing brief: what is stale, what is armed, what is running code older than the code on disk, and what number is currently impossible. That last category matters — a metric returning a conversion rate above 100% is listed by name as unquotable rather than quietly reported.
 
@@ -432,7 +450,8 @@ Where context is necessary to explain the architecture, identifiers are replaced
 - [ ] Improve queueing, retry, backoff, and dead-letter handling.
 - [ ] Make human approval payloads cryptographically identifiable.
 - [ ] Expand operational dashboards and health reporting.
-- [ ] Measure cycle time, failure rate, human intervention, and business impact.
+- [x] Measure business impact in money rather than activity: spend analysis prices every vendor against whatever replaces it.
+- [ ] Measure cycle time, failure rate, and human intervention with the same rigour.
 - [ ] Keep reducing architectural complexity as capability grows.
 
 ---

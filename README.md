@@ -90,7 +90,8 @@ The system can reason, retrieve context, prepare work, test tools, and assemble 
 |---|---|---|
 | ⭐ | **Review operations** | Collects review context, prepares grounded responses, tracks handling, and keeps the final external action behind approval. |
 | 📧 | **Email operations** | Reads permitted inbox context, classifies work, prepares replies, extracts tasks, and routes anything consequential for review. |
-| 🎯 | **Lead intelligence** | Evaluates incoming opportunities against defined criteria, records why a lead qualifies or does not, and prepares the next appropriate action. |
+| 🎯 | **Lead intelligence** | Sources prospects from public data, evaluates them against defined criteria, and measures one specific provable gap in each rather than guessing at a reason to call. |
+| ✉️ | **Outbound operations** | Paces prepared messages one at a time inside working hours, tests message variants against replies, and stops the entire run the moment a human answers. |
 | 📊 | **Data-to-decision reporting** | Turns operational data into summaries, exceptions, trends, and decision-ready reports instead of raw exports. |
 | 👥 | **Team operations** | Tracks tasks, responsibilities, follow-ups, recurring work, and operational handoffs without requiring the principal to manage the underlying system. |
 | 🔁 | **Retention and renewals** | Surfaces upcoming retention work, renewal opportunities, unresolved follow-ups, and context needed for timely intervention. |
@@ -149,6 +150,154 @@ It is also a cautionary tale. It was eleven times larger until a vendored databa
 The point is not to have the largest toolkit.
 
 The point is to make recurring work **explicit, inspectable, and recoverable**.
+
+---
+
+## 🎯 Finding people, and reaching them
+
+Two capabilities that only became one thing once they were built next to each other.
+
+### Measuring a reason to call
+
+Sourcing a list is easy and worth very little. **18,648 businesses** in one
+vertical were indexed from public data with 21,410 supporting observations, which
+on its own is a spreadsheet nobody will use.
+
+What makes it a lead is measuring **one specific, provable, checkable fact** about
+each prospect. In this case: how many of their public reviews go unanswered. 553
+listings measured so far, 131 of them under a 70% reply rate. That number can be
+stated in a first sentence and verified by the recipient in under a minute, which
+is a different conversation from a generic pitch.
+
+**The finding that changed how the tool is used.** The median reply rate across
+all 553 measured is **92%**. These businesses are good at this. The gap is a
+filter for finding the few, not a description of the market, and any material
+implying otherwise would be false. A lead tool that cannot tell you its own
+opening is unrepresentative is a tool that will embarrass you in front of a
+prospect.
+
+### The channel that was measured wrong
+
+Worth writing down because the mistake is easy and the correction was large.
+
+A crawler read all 17,514 prospect websites looking for published email addresses
+and found **67**, which is 0.38%. That number got quoted for a day as proof the
+email channel did not exist.
+
+Nobody had measured the **domain**. **14,827 of 17,514, or 84.7%, run their own
+domain carrying their own name.** A 120 domain random sample was checked for mail
+exchanger records and 120 of 120 accept mail. The address is therefore
+*constructible* rather than *discoverable*, and the reachable population is **221
+times** what the published count suggested.
+
+**Two caveats travel with that number and neither is optional.** A mail exchanger
+record proves a domain accepts mail; it does not prove a given local part exists.
+That stays an inference until a real send measures the bounce rate. And the
+sample showed every one of those domains routing through a single third party
+platform, which changes what may safely be said in a message to any of them.
+
+The general lesson: **when a measurement says a channel is dead, check what was
+actually measured.** Published and reachable are different words.
+
+### Sending, without becoming a sender
+
+The outbound layer sends **at most one message per run** on a scheduled task, and
+is stateless between runs. That is deliberate rather than simple. A long running
+process that sleeps between sends dies with a reboot and holds whatever code it
+started with; a task that wakes, does one thing and exits can be corrected at any
+point and does the right thing on the next tick.
+
+What it refuses to do is most of what it is:
+
+- **Nothing at all without an approval file on disk**, which is the record that a
+  person read the batch. No file, no send, and it says so and exits.
+- **Nothing outside working hours in the recipient's own timezone.** Not the
+  sender's. Volume is unchanged; the clock is not.
+- **Never catches up.** A missed slot costs one message. Sending six at once to
+  make up for it is the most machine-readable thing a mailbox can do.
+- **Intervals are randomised, not clockwork**, seeded from the date so a given
+  day's pattern can be reconstructed later if it ever has to be explained.
+- **A reply stops everything.** Not that recipient. Everything. A reply is a
+  person, and continuing to mail a list while somebody waits for an answer is the
+  worst thing this could do.
+- **A bounce rate above a threshold halts the campaign**, because a list of
+  inferred addresses is exactly how a sending reputation gets destroyed.
+
+### Testing the message instead of arguing about it
+
+Three message variants run concurrently, each leading with a different angle and
+**ending in a single question rather than a pitch**. The reply says which problem
+the prospect actually finds annoying, in their own words, and the pitch goes into
+the response to that.
+
+This is not a style preference. 64 posts with real engagement numbers were
+analysed and content carrying a pitch performed at **0.42x** the account's own
+following, the worst of five angles measured, while a universal work grievance did
+10.6x. A first message that pitches is measurably the weak one.
+
+Every variant carries a postal address and a working opt-out, because commercial
+mail to a stranger legally requires both, and because a complaint without them is
+a real problem rather than an annoyance.
+
+---
+
+## 🔌 Delivering through a system you do not control
+
+A problem worth documenting because the shape recurs: **the work was never
+composition, it was delivery.**
+
+Messages prepared on the operations machine had no route out of the business's
+own corporate mailbox. Authenticated SMTP was disabled at the tenant level,
+nothing could be installed on the managed laptop, and that mailbox was the only
+identity the recipients would recognise.
+
+The answer was the tenant's own sanctioned automation platform. A cloud flow
+watches for a trigger message, verifies it, and sends the finished body through a
+native mail API rather than over SMTP, so the disabled protocol never applies. It
+is vendor-supported rather than a script on a managed device, and **nothing runs
+on the laptop**, so the laptop can be closed.
+
+Three details that cost real time and are worth stealing:
+
+**Routing metadata rides in the subject line, never the body.** A subject is
+always plain text. A body will be re-rendered as HTML the moment a mail client
+feels like it, and any parsing of it breaks silently at that point.
+
+**The gate is two independent checks and both are needed.** One filters on
+sender; a separate condition verifies a shared secret. A sender header on
+inbound internet mail is forgeable, which is why the secret exists. The secret
+travels in clear text through the mail gateway, which is why the sender check
+exists. Either alone is not a gate.
+
+**The refusal was tested before the success, on purpose.** Wrong secret first:
+the run completed in 101 ms, the send step was skipped, nothing was delivered
+anywhere. Only then was a real message sent. A relay that delivers is trivially
+easy to verify. A relay that correctly refuses is the half nobody checks, and it
+is the half that matters.
+
+### The bug worth admitting
+
+The gate failed with the correct secret, and forty minutes went into the wrong
+explanations. The secret had been generated by a standard URL-safe token function
+and contained two capital `I` characters. Typed by hand into a browser from a
+phone screen, capital `I` and lowercase `l` are the same glyph in most interface
+fonts.
+
+**Any secret a human has to retype is now generated from an alphabet with no
+`I`, `l`, `1`, `O` or `0` in it.** It was not a security problem, a platform
+problem or a logic problem. It was typography, and no amount of debugging the
+logic was ever going to find it.
+
+### What the relay deliberately cannot do
+
+It cannot compose a message, alter one, or choose a recipient. It takes a
+finished body that a person wrote and a person read, and it delivers it. Pacing,
+follow-up timing and stop-on-reply all live on the operations machine, on the
+other side of the boundary, where they can be corrected.
+
+**Delivery and authorship are separate systems.** Collapsing them is how an
+automation becomes an open relay wearing somebody else's name.
+
 
 ---
 
